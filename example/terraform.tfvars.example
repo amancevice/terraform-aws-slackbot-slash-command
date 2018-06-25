@@ -1,1 +1,2 @@
-slackbot_verification_token = "myVerificationToken"
+slack_verification_token = "myVerificationToken"
+slack_web_api_token      = "myWebApiToken"

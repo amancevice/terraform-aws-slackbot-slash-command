@@ -8,7 +8,10 @@ output "request_urls" {
   }
 }
 
-output "sns_topics" {
+output "sns_topic_arns" {
   description = "SNS topics created."
-  value       = ["${module.slackbot.sns_topics}"]
+  value       = [
+    "${module.slackbot.callback_topic_arns}",
+    "${module.slackbot.event_topic_arns}"
+  ]
 }
