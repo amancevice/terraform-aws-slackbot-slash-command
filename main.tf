@@ -140,7 +140,7 @@ resource "aws_lambda_function" "slash_command" {
   memory_size      = "${var.lambda_memory_size}"
   role             = "${aws_iam_role.role.arn}"
   runtime          = "nodejs8.10"
-  source_code_hash = "${base64sha256(file("${data.archive_file.lambda.output_path}"))}"
+  source_code_hash = "${data.archive_file.lambda.output_base64sha256}"
   tags             = "${var.lambda_tags}"
   timeout          = "${var.lambda_timeout}"
 
