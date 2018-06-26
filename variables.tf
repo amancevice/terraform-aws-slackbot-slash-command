@@ -94,6 +94,11 @@ variable "lambda_timeout" {
   default     = 3
 }
 
+variable "role_inline_policy_name" {
+  description = "Name of inline slash command role policy."
+  default     = ""
+}
+
 variable "role_name" {
   description = "Name of role for slash command Lambdas."
   default     = ""
@@ -102,11 +107,6 @@ variable "role_name" {
 variable "role_path" {
   description = "Path for slash command role."
   default     = "/service-role/"
-}
-
-variable "role_inline_policy_name" {
-  description = "Name of inline slash command role policy."
-  default     = ""
 }
 
 variable "response_type" {
