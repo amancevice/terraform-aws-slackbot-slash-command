@@ -95,17 +95,17 @@ variable "lambda_timeout" {
 }
 
 variable "role_name" {
-  description = "Name of role for Slackbot Lambdas."
+  description = "Name of role for slash command Lambdas."
   default     = ""
 }
 
 variable "role_path" {
-  description = "Path for Slackbot role."
+  description = "Path for slash command role."
   default     = "/service-role/"
 }
 
-variable "role_policy_name" {
-  description = "Name of inline Slackbot role policy."
+variable "role_inline_policy_name" {
+  description = "Name of inline slash command role policy."
   default     = ""
 }
 

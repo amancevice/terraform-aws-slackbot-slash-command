@@ -3,7 +3,7 @@ locals {
   function_name                      = "${coalesce("${var.lambda_function_name}", "slack-slash-command-${var.slash_command}")}"
   log_arn_prefix                     = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}"
   role_name                          = "${coalesce("${var.role_name}", "${local.function_name}-role")}"
-  role_policy_name                   = "${coalesce("${var.role_policy_name}", "${local.role_name}-inline-policy")}"
+  role_inline_policy_name            = "${coalesce("${var.role_inline_policy_name}", "${local.role_name}-inline-policy")}"
   slack_verification_token_encrypted = "${element(coalescelist("${data.aws_kms_ciphertext.verification_token.*.ciphertext_blob}", list("${var.slack_verification_token}")), 0)}"
   slack_web_api_token_encrypted      = "${element(coalescelist("${data.aws_kms_ciphertext.web_api_token.*.ciphertext_blob}", list("${var.slack_web_api_token}")), 0)}"
 
