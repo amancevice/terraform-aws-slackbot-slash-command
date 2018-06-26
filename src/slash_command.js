@@ -18,7 +18,7 @@ let verification_token, web_api_token;
 function verifyChannel(channel) {
   return auth.channels.exclude.indexOf(channel) < 0 &&
         (auth.channels.include.length == 0 ||
-         auth.channels.include.indexOf(channel) >= 0)
+         auth.channels.include.indexOf(channel) >= 0);
 }
 
 /**
@@ -29,7 +29,7 @@ function verifyChannel(channel) {
 function verifyUser(user) {
   return auth.users.exclude.indexOf(user) < 0 &&
         (auth.users.include.length == 0 ||
-         auth.users.include.indexOf(user) >= 0)
+         auth.users.include.indexOf(user) >= 0);
 }
 
 /**
