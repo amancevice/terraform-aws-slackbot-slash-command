@@ -9,7 +9,7 @@
 *.tfvars
 
 # module
-dist/
+/dist/
 
 # node
 **/package-lock.json
