@@ -127,7 +127,7 @@ resource "aws_iam_role" "role" {
 }
 
 resource "aws_iam_role_policy" "role_policy" {
-  name   = "${local.role_policy_name}"
+  name   = "${local.role_inline_policy_name}"
   role   = "${aws_iam_role.role.id}"
   policy = "${data.aws_iam_policy_document.inline.json}"
 }
