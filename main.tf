@@ -1,4 +1,5 @@
 locals {
+  api_invoke_url                     = "${var.api_invoke_url}"
   function_name                      = "${coalesce("${var.lambda_function_name}", "slack-slash-command-${var.slash_command}")}"
   log_arn_prefix                     = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}"
   role_name                          = "${coalesce("${var.role_name}", "${local.function_name}-role")}"
