@@ -4,32 +4,33 @@ Generic slash command handler for Slack.
 
 ## Quickstart
 
-Create a `main.tf` file with the following contents:
-
 ```terraform
-# main.tf
-
-provider "aws" {
-  region = "<region-name>"
-}
-
+# Slackbot API
 module "slackbot" {
   source                   = "amancevice/slackbot/aws"
-  callback_ids             = ["<your-slack-callbacks-here>"]
-  event_types              = ["<your-slack-events-here>"]
-  slack_verification_token = "<slack-verification-token>"
+  slack_access_token       = "${var.slack_access_token}"
+  slack_bot_access_token   = "${var.slack_bot_access_token}"
+  slack_signing_secret     = "${var.slack_signing_secret}"
+
+  callback_ids = [
+    # ...
+  ]
+
+  event_types = [
+    # ...
+  ]
 }
 
+# Slackbot slash command
 module "slash_command" {
-  source                   = "amancevice/slack-slash-command/aws"
-  api_execution_arn        = "${module.socialismbot.api_execution_arn}"
-  api_invoke_url           = "${module.socialismbot.api_invoke_url}"
-  api_name                 = "${module.socialismbot.api_name}"
-  api_parent_id            = "${module.socialismbot.slash_commands_resource_id}"
-  kms_key_id               = "${module.socialismbot.kms_key_id}"
-  slack_verification_token = "<slack-verification-token>"
-  slack_web_api_token      = "<slack-web-api-token>"
-  slash_command            = "mycommand"
+  source                      = "amancevice/slack-slash-command/aws"
+  api_name                    = "${module.slackbot.api_name}"
+  api_execution_arn           = "${module.slackbot.api_execution_arn}"
+  api_parent_id               = "${module.slackbot.slash_commands_resource_id}"
+  api_invoke_url              = "${module.slackbot.slash_commands_request_url}"
+  slackbot_secret             = "${module.slackbot.secret}"
+  slackbot_secrets_policy_arn = "${module.slackbot.secrets_policy_arn}"
+  slash_command               = "mycommand"
 
   response {
     text = ":sparkles: This will be the response of the Slash Command."
@@ -37,17 +38,6 @@ module "slash_command" {
 }
 ```
 
-_Note: this is not a secure way of storing your verification/Web API tokens. See the [example](./example) for more secure/detailed deployment._
+This will add an API endpoint, `/v1/slash-commands/mycommand`, to be configured in Slack.
 
-
-In a terminal window, initialize the state:
-
-```bash
-terraform init
-```
-
-Then review & apply the changes
-
-```bash
-terraform apply
-```
+For every callback you plan on making (these are all custom values), add the callback ID to the `callback_ids` list in the `slackbot` module.

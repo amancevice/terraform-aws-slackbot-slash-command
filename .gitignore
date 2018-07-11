@@ -12,4 +12,4 @@
 /dist/
 
 # node
-**/package-lock.json
+/src/package-lock.json

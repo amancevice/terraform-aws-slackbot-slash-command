@@ -1,11 +1,7 @@
 locals {
-  api_invoke_url                     = "${var.api_invoke_url}"
-  function_name                      = "${coalesce("${var.lambda_function_name}", "slack-slash-command-${var.slash_command}")}"
-  log_arn_prefix                     = "arn:aws:logs:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}"
-  role_name                          = "${coalesce("${var.role_name}", "${local.function_name}-role")}"
-  role_inline_policy_name            = "${coalesce("${var.role_inline_policy_name}", "${local.role_name}-inline-policy")}"
-  slack_verification_token_encrypted = "${element(coalescelist("${data.aws_kms_ciphertext.verification_token.*.ciphertext_blob}", list("${var.slack_verification_token}")), 0)}"
-  slack_web_api_token_encrypted      = "${element(coalescelist("${data.aws_kms_ciphertext.web_api_token.*.ciphertext_blob}", list("${var.slack_web_api_token}")), 0)}"
+  api_invoke_url = "${var.api_invoke_url}"
+  function_name  = "${coalesce("${var.lambda_function_name}", "slack-slash-command-${var.slash_command}")}"
+  role_path      = "${coalesce("${var.role_path}", "/${var.api_name}/")}"
 
   auth {
     channels {
@@ -45,47 +41,6 @@ data "aws_iam_policy_document" "assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "inline" {
-  statement {
-    actions   = ["logs:CreateLogGroup"]
-    resources = ["*"]
-  }
-
-  statement {
-    actions   = [
-      "logs:CreateLogStream",
-      "logs:PutLogEvents"
-    ]
-    resources = [
-      "${local.log_arn_prefix}:log-group:/aws/lambda/${aws_lambda_function.slash_command.function_name}:*"
-    ]
-  }
-
-  statement {
-    actions   = ["kms:Decrypt"]
-    resources = ["${data.aws_kms_key.key.arn}"]
-  }
-}
-
-data "aws_kms_ciphertext" "verification_token" {
-  count     = "${var.auto_encrypt_tokens}"
-  key_id    = "${data.aws_kms_key.key.id}"
-  plaintext = "${var.slack_verification_token}"
-}
-
-data "aws_kms_ciphertext" "web_api_token" {
-  count     = "${var.auto_encrypt_tokens}"
-  key_id    = "${data.aws_kms_key.key.id}"
-  plaintext = "${var.slack_web_api_token}"
-}
-
-data "aws_kms_key" "key" {
-  key_id = "${var.kms_key_id}"
-}
-
-data "aws_region" "current" {
-}
-
 resource "aws_api_gateway_resource" "resource" {
   rest_api_id = "${data.aws_api_gateway_rest_api.api.id}"
   parent_id   = "${var.api_parent_id}"
@@ -122,21 +77,25 @@ resource "aws_api_gateway_method_response" "response" {
 
 resource "aws_iam_role" "role" {
   assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
-  name               = "${local.role_name}"
-  path               = "${var.role_path}"
+  name               = "${local.function_name}-role"
+  path               = "${local.role_path}"
 }
 
-resource "aws_iam_role_policy" "role_policy" {
-  name   = "${local.role_inline_policy_name}"
-  role   = "${aws_iam_role.role.id}"
-  policy = "${data.aws_iam_policy_document.inline.json}"
+resource "aws_iam_role_policy_attachment" "cloudwatch" {
+  role       = "${aws_iam_role.role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "secrets" {
+  role       = "${aws_iam_role.role.name}"
+  policy_arn = "${var.slackbot_secrets_policy_arn}"
 }
 
 resource "aws_lambda_function" "slash_command" {
   description      = "${var.lambda_description}"
   filename         = "${data.archive_file.lambda.output_path}"
   function_name    = "${local.function_name}"
-  handler          = "slash_command.handler"
+  handler          = "index.handler"
   memory_size      = "${var.lambda_memory_size}"
   role             = "${aws_iam_role.role.arn}"
   runtime          = "nodejs8.10"
@@ -146,11 +105,11 @@ resource "aws_lambda_function" "slash_command" {
 
   environment {
     variables = {
-      AUTH                         = "${jsonencode(local.auth)}"
-      ENCRYPTED_VERIFICATION_TOKEN = "${local.slack_verification_token_encrypted}"
-      ENCRYPTED_WEB_API_TOKEN      = "${local.slack_web_api_token_encrypted}"
-      RESPONSE_TYPE                = "${var.response_type}"
-      RESPONSE                     = "${jsonencode(var.response)}"
+      AUTH          = "${jsonencode(local.auth)}"
+      RESPONSE      = "${jsonencode(var.response)}"
+      RESPONSE_TYPE = "${var.response_type}"
+      SECRET        = "${var.slackbot_secret}"
+      TOKEN         = "${var.slackbot_token}"
     }
   }
 }

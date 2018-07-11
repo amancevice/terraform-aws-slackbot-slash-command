@@ -56,15 +56,6 @@ variable "auth_users_permission_denied" {
   }
 }
 
-variable "auto_encrypt_tokens" {
-  description = "Flag to automatically encrypt tokens."
-  default     = true
-}
-
-variable "kms_key_id" {
-  description = "Slackbot KMS Key ID."
-}
-
 variable "lambda_description" {
   description = "Lambda function description."
   default     = "Slack slash command handler."
@@ -91,12 +82,7 @@ variable "lambda_tags" {
 
 variable "lambda_timeout" {
   description = "Lambda function timeout."
-  default     = 3
-}
-
-variable "role_inline_policy_name" {
-  description = "Name of inline slash command role policy."
-  default     = ""
+  default     = 10
 }
 
 variable "role_name" {
@@ -106,7 +92,7 @@ variable "role_name" {
 
 variable "role_path" {
   description = "Path for slash command role."
-  default     = "/service-role/"
+  default     = ""
 }
 
 variable "response_type" {
@@ -123,12 +109,17 @@ variable "response" {
   }
 }
 
-variable "slack_verification_token" {
-  description = "Slack verification token."
+variable "slackbot_secret" {
+  description = "Name of Slackbot secret in AWS SecretsManager."
 }
 
-variable "slack_web_api_token" {
-  description = "Slack Web API token."
+variable "slackbot_token" {
+  description = "Name of token key in Slackbot secret."
+  default     = "BOT_ACCESS_TOKEN"
+}
+
+variable "slackbot_secrets_policy_arn" {
+  description = "ARN of policy granting read access to Slackbot secrets."
 }
 
 variable "slash_command" {
