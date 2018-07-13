@@ -77,7 +77,7 @@ resource "aws_lambda_function" "slash_command" {
   timeout          = "${var.lambda_timeout}"
 
   environment {
-    variables = {
+    variables {
       AUTH            = "${jsonencode(local.auth)}"
       RESPONSE        = "${jsonencode(var.response)}"
       RESPONSE_TYPE   = "${var.response_type}"
