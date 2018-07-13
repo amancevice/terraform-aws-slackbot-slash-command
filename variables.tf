@@ -68,7 +68,7 @@ variable "lambda_function_name" {
 
 variable "lambda_memory_size" {
   description = "Lambda function memory size."
-  default     = 128
+  default     = 512
 }
 
 variable "lambda_tags" {
@@ -82,7 +82,7 @@ variable "lambda_tags" {
 
 variable "lambda_timeout" {
   description = "Lambda function timeout."
-  default     = 10
+  default     = 3
 }
 
 variable "role_name" {
