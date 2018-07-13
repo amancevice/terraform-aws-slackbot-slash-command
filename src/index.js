@@ -1,10 +1,4 @@
 const auth = JSON.parse(process.env.AUTH);
-const crypto = require('crypto');
-const response = JSON.parse(process.env.RESPONSE);
-const response_type = process.env.RESPONSE_TYPE;
-const secret = process.env.SECRET;
-const signing_version = process.env.SIGNING_VERSION;
-const sns_topic_prefix = process.env.SNS_TOPIC_PREFIX;
 
 let signing_secret, access_token;
 
@@ -16,6 +10,7 @@ function getSigningSecret() {
     if (signing_secret) {
       resolve(signing_secret);
     } else {
+      const secret = process.env.SECRET;
       console.log(`FETCH ${secret}`);
       const AWS = require('aws-sdk');
       const secrets = new AWS.SecretsManager();
@@ -41,7 +36,9 @@ function getSigningSecret() {
  */
 function verifyRequest(event) {
   return new Promise((resolve, reject) => {
+    const crypto = require('crypto');
     const qs = require('querystring');
+    const signing_version = process.env.SIGNING_VERSION;
     const payload = qs.parse(event.body);
     const ts = event.headers['X-Slack-Request-Timestamp']
     const req = event.headers['X-Slack-Signature'];
@@ -92,6 +89,8 @@ function verifyUser(user) {
  */
 function processEvent(payload) {
   return new Promise((resolve, reject) => {
+    const response = JSON.parse(process.env.RESPONSE);
+    const response_type = process.env.RESPONSE_TYPE;
     if (response_type === 'dialog') {
       console.log(`DIALOG ${JSON.stringify(response)}`);
       const { WebClient } = require('@slack/client');

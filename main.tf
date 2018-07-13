@@ -30,17 +30,6 @@ data "aws_api_gateway_rest_api" "api" {
 data "aws_caller_identity" "current" {
 }
 
-data "aws_iam_policy_document" "assume_role" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["lambda.amazonaws.com"]
-    }
-  }
-}
-
 resource "aws_api_gateway_resource" "resource" {
   rest_api_id = "${data.aws_api_gateway_rest_api.api.id}"
   parent_id   = "${var.api_parent_id}"
@@ -75,29 +64,13 @@ resource "aws_api_gateway_method_response" "response" {
   }
 }
 
-resource "aws_iam_role" "role" {
-  assume_role_policy = "${data.aws_iam_policy_document.assume_role.json}"
-  name               = "${local.function_name}-role"
-  path               = "${local.role_path}"
-}
-
-resource "aws_iam_role_policy_attachment" "cloudwatch" {
-  role       = "${aws_iam_role.role.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
-resource "aws_iam_role_policy_attachment" "secrets" {
-  role       = "${aws_iam_role.role.name}"
-  policy_arn = "${var.secrets_policy_arn}"
-}
-
 resource "aws_lambda_function" "slash_command" {
   description      = "${var.lambda_description}"
   filename         = "${data.archive_file.lambda.output_path}"
   function_name    = "${local.function_name}"
   handler          = "index.handler"
   memory_size      = "${var.lambda_memory_size}"
-  role             = "${aws_iam_role.role.arn}"
+  role             = "${var.role_arn}"
   runtime          = "nodejs8.10"
   source_code_hash = "${data.archive_file.lambda.output_base64sha256}"
   tags             = "${var.lambda_tags}"

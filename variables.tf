@@ -85,9 +85,8 @@ variable "lambda_timeout" {
   default     = 3
 }
 
-variable "role_name" {
-  description = "Name of role for slash command Lambdas."
-  default     = ""
+variable "role_arn" {
+  description = "Slackbot role ARN."
 }
 
 variable "role_path" {
@@ -116,6 +115,7 @@ variable "secret" {
 variable "secrets_policy_arn" {
   description = "ARN of policy granting read access to Slackbot secrets."
 }
+
 
 variable "slack_signing_version" {
   description = "Slack signing version."
