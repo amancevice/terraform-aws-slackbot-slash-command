@@ -88,7 +88,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 
 resource "aws_iam_role_policy_attachment" "secrets" {
   role       = "${aws_iam_role.role.name}"
-  policy_arn = "${var.slackbot_secrets_policy_arn}"
+  policy_arn = "${var.secrets_policy_arn}"
 }
 
 resource "aws_lambda_function" "slash_command" {
@@ -105,11 +105,12 @@ resource "aws_lambda_function" "slash_command" {
 
   environment {
     variables = {
-      AUTH          = "${jsonencode(local.auth)}"
-      RESPONSE      = "${jsonencode(var.response)}"
-      RESPONSE_TYPE = "${var.response_type}"
-      SECRET        = "${var.slackbot_secret}"
-      TOKEN         = "${var.slackbot_token}"
+      AUTH            = "${jsonencode(local.auth)}"
+      RESPONSE        = "${jsonencode(var.response)}"
+      RESPONSE_TYPE   = "${var.response_type}"
+      SECRET          = "${var.secret}"
+      SIGNING_VERSION = "${var.slack_signing_version}"
+      TOKEN           = "${var.slackbot_token}"
     }
   }
 }

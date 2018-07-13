@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const response = JSON.parse(process.env.RESPONSE);
 const response_type = process.env.RESPONSE_TYPE;
 const secret = process.env.SECRET;
-const signing_version = 'v0';
+const signing_version = process.env.SIGNING_VERSION;
 const sns_topic_prefix = process.env.SNS_TOPIC_PREFIX;
 
 let signing_secret, access_token;
