@@ -112,11 +112,6 @@ variable "secret" {
   description = "Name of Slackbot secret in AWS SecretsManager."
 }
 
-variable "secrets_policy_arn" {
-  description = "ARN of policy granting read access to Slackbot secrets."
-}
-
-
 variable "slack_signing_version" {
   description = "Slack signing version."
   default     = "v0"
