@@ -1,6 +1,6 @@
 locals {
   api_invoke_url = "${var.api_invoke_url}"
-  function_name  = "${coalesce("${var.lambda_function_name}", "slack-slash-command-${var.slash_command}")}"
+  function_name  = "${coalesce("${var.lambda_function_name}", "slack-${var.api_name}-slash-command-${var.slash_command}")}"
   role_path      = "${coalesce("${var.role_path}", "/${var.api_name}/")}"
 
   auth {
