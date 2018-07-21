@@ -1,27 +1,29 @@
 const auth = JSON.parse(process.env.AUTH);
+const response = JSON.parse(process.env.RESPONSE);
+const response_type = process.env.RESPONSE_TYPE;
+const secret = process.env.SECRET;
+const signing_version = process.env.SIGNING_VERSION;
+const token = process.env.TOKEN;
 
-let signing_secret, access_token;
+let secrets;
 
 /**
  * Get Slack tokens from memory or AWS SecretsManager.
  */
 function getSigningSecret() {
   return new Promise((resolve, reject) => {
-    if (signing_secret) {
-      resolve(signing_secret);
+    if (secrets) {
+      resolve(secrets);
     } else {
-      const secret = process.env.SECRET;
       console.log(`FETCH ${secret}`);
       const AWS = require('aws-sdk');
-      const secrets = new AWS.SecretsManager();
-      secrets.getSecretValue({SecretId: secret}, (err, data) => {
+      const secretsmanager = new AWS.SecretsManager();
+      secretsmanager.getSecretValue({SecretId: secret}, (err, data) => {
         if (err) {
           reject(err);
         } else {
-          const secrets = JSON.parse(data.SecretString);
-          signing_secret = secrets.SIGNING_SECRET;
-          access_token = secrets.BOT_ACCESS_TOKEN;
-          console.log(`RECEIVED SIGNING SECRET`);
+          secrets = JSON.parse(data.SecretString);
+          console.log(`RECEIVED ${secret}`);
           resolve(secrets);
         }
       });
@@ -38,11 +40,10 @@ function verifyRequest(event) {
   return new Promise((resolve, reject) => {
     const crypto = require('crypto');
     const qs = require('querystring');
-    const signing_version = process.env.SIGNING_VERSION;
     const payload = qs.parse(event.body);
     const ts = event.headers['X-Slack-Request-Timestamp']
     const req = event.headers['X-Slack-Signature'];
-    const hmac = crypto.createHmac('sha256', signing_secret);
+    const hmac = crypto.createHmac('sha256', secrets.SIGNING_SECRET);
     const data = `${signing_version}:${event.headers['X-Slack-Request-Timestamp']}:${event.body}`;
     const sig = `${signing_version}=${hmac.update(data).digest('hex')}`;
     console.log(`SIGNATURES ${JSON.stringify({request: req, calculated: sig})}`);
@@ -89,12 +90,10 @@ function verifyUser(user) {
  */
 function processEvent(payload) {
   return new Promise((resolve, reject) => {
-    const response = JSON.parse(process.env.RESPONSE);
-    const response_type = process.env.RESPONSE_TYPE;
     if (response_type === 'dialog') {
       console.log(`DIALOG ${JSON.stringify(response)}`);
       const { WebClient } = require('@slack/client');
-      const slack = new WebClient(access_token);
+      const slack = new WebClient(secrets[token]);
       slack.dialog.open({
         trigger_id: payload.trigger_id,
         dialog: response

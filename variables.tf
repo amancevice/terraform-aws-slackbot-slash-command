@@ -68,7 +68,7 @@ variable "lambda_function_name" {
 
 variable "lambda_memory_size" {
   description = "Lambda function memory size."
-  default     = 512
+  default     = 1024
 }
 
 variable "lambda_tags" {
@@ -85,13 +85,8 @@ variable "lambda_timeout" {
   default     = 3
 }
 
-variable "role_arn" {
-  description = "Slackbot role ARN."
-}
-
-variable "role_path" {
-  description = "Path for slash command role."
-  default     = ""
+variable "role" {
+  description = "Slackbot role."
 }
 
 variable "response_type" {
@@ -112,16 +107,16 @@ variable "secret" {
   description = "Name of Slackbot secret in AWS SecretsManager."
 }
 
-variable "slack_signing_version" {
+variable "signing_version" {
   description = "Slack signing version."
   default     = "v0"
 }
 
-variable "slackbot_token" {
-  description = "Name of token key in Slackbot secret."
-  default     = "BOT_ACCESS_TOKEN"
-}
-
 variable "slash_command" {
   description = "Name of slash command."
+}
+
+variable "token" {
+  description = "Name of token key in Slackbot secret."
+  default     = "WORKSPACE_TOKEN"
 }

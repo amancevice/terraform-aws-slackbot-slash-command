@@ -1,7 +1,6 @@
 locals {
   api_invoke_url = "${var.api_invoke_url}"
   function_name  = "${coalesce("${var.lambda_function_name}", "slack-${var.api_name}-slash-command-${var.slash_command}")}"
-  role_path      = "${coalesce("${var.role_path}", "/${var.api_name}/")}"
 
   auth {
     channels {
@@ -28,6 +27,10 @@ data "aws_api_gateway_rest_api" "api" {
 }
 
 data "aws_caller_identity" "current" {
+}
+
+data "aws_iam_role" "role" {
+  name = "${var.role}"
 }
 
 resource "aws_api_gateway_resource" "resource" {
@@ -70,7 +73,7 @@ resource "aws_lambda_function" "slash_command" {
   function_name    = "${local.function_name}"
   handler          = "index.handler"
   memory_size      = "${var.lambda_memory_size}"
-  role             = "${var.role_arn}"
+  role             = "${data.aws_iam_role.role.arn}"
   runtime          = "nodejs8.10"
   source_code_hash = "${data.archive_file.lambda.output_base64sha256}"
   tags             = "${var.lambda_tags}"
@@ -82,8 +85,8 @@ resource "aws_lambda_function" "slash_command" {
       RESPONSE        = "${jsonencode(var.response)}"
       RESPONSE_TYPE   = "${var.response_type}"
       SECRET          = "${var.secret}"
-      SIGNING_VERSION = "${var.slack_signing_version}"
-      TOKEN           = "${var.slackbot_token}"
+      SIGNING_VERSION = "${var.signing_version}"
+      TOKEN           = "${var.token}"
     }
   }
 }
