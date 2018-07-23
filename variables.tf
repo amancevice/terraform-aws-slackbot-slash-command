@@ -118,5 +118,5 @@ variable "slash_command" {
 
 variable "token" {
   description = "Name of token key in Slackbot secret."
-  default     = "WORKSPACE_TOKEN"
+  default     = "BOT_ACCESS_TOKEN"
 }
