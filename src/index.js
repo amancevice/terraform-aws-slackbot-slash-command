@@ -10,7 +10,7 @@ let secrets;
 /**
  * Get Slack tokens from memory or AWS SecretsManager.
  */
-function getSigningSecret() {
+function getSecrets() {
   return new Promise((resolve, reject) => {
     if (secrets) {
       resolve(secrets);
@@ -115,7 +115,7 @@ function processEvent(payload) {
  * @param {function} callback AWS Lambda callback function.
  */
 function handler(event, context, callback) {
-  getSigningSecret().then((res) => {
+  getSecrets().then((res) => {
     return verifyRequest(event);
   }).then((res) => {
     return processEvent(res);
