@@ -1,5 +1,6 @@
 locals {
-  function_name  = "${coalesce(var.lambda_function_name, "slack-${var.api_name}-slash-${var.slash_command}")}"
+  function_name = "${coalesce(var.lambda_function_name, "slack-${var.api_name}-slash-${var.slash_command}")}"
+  description   = "${coalesce(var.lambda_description, "Handler for /${var.slash_command}")}"
 }
 
 data "archive_file" "lambda" {
@@ -16,7 +17,7 @@ data "aws_iam_role" "role" {
 }
 
 resource "aws_lambda_function" "lambda" {
-  description      = "${var.lambda_description}"
+  description      = "${local.description}"
   filename         = "${data.archive_file.lambda.output_path}"
   function_name    = "${local.function_name}"
   handler          = "index.handler"
