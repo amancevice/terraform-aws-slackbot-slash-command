@@ -1,4 +1,9 @@
-output "request_url" {
-  description = "Slash Command Request URL."
-  value       = "${local.api_invoke_url}/slash-commands/${aws_api_gateway_resource.resource.path_part}"
+output "sns_topic" {
+  description = "Name of SNS topic trigger."
+  value       = "${aws_sns_topic.trigger.name}"
+}
+
+output "lambda_function" {
+  description = "Name of lambda function SNS handler."
+  value       = "${aws_lambda_function.lambda.function_name}"
 }

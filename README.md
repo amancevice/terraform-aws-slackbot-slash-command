@@ -7,30 +7,20 @@ Generic slash command handler for Slack.
 ```terraform
 # Slackbot API
 module "slackbot" {
-  source                   = "amancevice/slackbot/aws"
-  slack_access_token       = "${var.slack_access_token}"
-  slack_bot_access_token   = "${var.slack_bot_access_token}"
-  slack_signing_secret     = "${var.slack_signing_secret}"
-
-  callback_ids = [
-    # ...
-  ]
-
-  event_types = [
-    # ...
-  ]
+  source                 = "amancevice/slackbot/aws"
+  slack_access_token     = "${var.slack_access_token}"
+  slack_bot_access_token = "${var.slack_bot_access_token}"
+  slack_signing_secret   = "${var.slack_signing_secret}"
 }
 
 # Slackbot slash command
 module "slash_command" {
-  source                      = "amancevice/slack-slash-command/aws"
-  api_name                    = "${module.slackbot.api_name}"
-  api_execution_arn           = "${module.slackbot.api_execution_arn}"
-  api_parent_id               = "${module.slackbot.slash_commands_resource_id}"
-  api_invoke_url              = "${module.slackbot.slash_commands_request_url}"
-  slackbot_secret             = "${module.slackbot.secret}"
-  slackbot_secrets_policy_arn = "${module.slackbot.secrets_policy_arn}"
-  slash_command               = "mycommand"
+  source        = "amancevice/slack-slash-command/aws"
+  api_name      = "${module.slackbot.api_name}"
+  response_type = "dialog|ephemeral|in_channel"
+  role          = "${module.slackbot.role}"
+  secret        = "${module.slackbot.secret}"
+  slash_command = "mycommand"
 
   response {
     text = ":sparkles: This will be the response of the Slash Command."
@@ -38,6 +28,4 @@ module "slash_command" {
 }
 ```
 
-This will add an API endpoint, `/v1/slash-commands/mycommand`, to be configured in Slack.
-
-For every callback you plan on making (these are all custom values), add the callback ID to the `callback_ids` list in the `slackbot` module.
+This will add an SNS topic `slack_slash_<slash-command>` whose messages trigger a Lambda function to issue the response via the Slack Web API.

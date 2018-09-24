@@ -2,63 +2,9 @@ variable "api_name" {
   description = "Slackbot REST API Gateway Name."
 }
 
-variable "api_execution_arn" {
-  description = "Slackbot REST API Gateway deployment execution ARN."
-}
-
-variable "api_invoke_url" {
-  description = "Slackbot REST API Gateway invocation URL."
-}
-
-variable "api_parent_id" {
-  description = "Slackbot slash commands parent resource ID."
-}
-
-variable "auth_channels_exclude" {
-  description = "Optional list of Slack channel IDs to blacklist."
-  type        = "list"
-  default     = []
-}
-
-variable "auth_channels_include" {
-  description = "Optional list of Slack channel IDs to whitelist."
-  type        = "list"
-  default     = []
-}
-
-variable "auth_channels_permission_denied" {
-  description = "Permission denied message for channels."
-  type        = "map"
-
-  default {
-    text = "Sorry, you can't do that in this channel."
-  }
-}
-
-variable "auth_users_exclude" {
-  description = "Optional list of Slack user IDs to blacklist."
-  type        = "list"
-  default     = []
-}
-
-variable "auth_users_include" {
-  description = "Optional list of Slack user IDs to whitelist."
-  type        = "list"
-  default     = []
-}
-
-variable "auth_users_permission_denied" {
-  description = "Permission denied message for users."
-  type        = "map"
-
-  default {
-    text = "Sorry, you don't have permission to do that."
-  }
-}
-
 variable "lambda_description" {
   description = "Lambda function description."
-  default     = "Slack slash command handler."
+  default     = ""
 }
 
 variable "lambda_function_name" {
@@ -68,7 +14,7 @@ variable "lambda_function_name" {
 
 variable "lambda_memory_size" {
   description = "Lambda function memory size."
-  default     = 1024
+  default     = 512
 }
 
 variable "lambda_tags" {
@@ -90,26 +36,17 @@ variable "role" {
 }
 
 variable "response_type" {
-  description = "Direct or dialog."
-  default     = "direct"
+  description = "Slack response type (dialog, ephemeral, or in_channel)."
+  default     = "ephemeral"
 }
 
 variable "response" {
   description = "Slack response object."
   type        = "map"
-
-  default {
-    text = "OK"
-  }
 }
 
 variable "secret" {
   description = "Name of Slackbot secret in AWS SecretsManager."
-}
-
-variable "signing_version" {
-  description = "Slack signing version."
-  default     = "v0"
 }
 
 variable "slash_command" {

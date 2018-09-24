@@ -1,11 +1,11 @@
-const auth = JSON.parse(process.env.AUTH);
-const response = JSON.parse(process.env.RESPONSE);
-const response_type = process.env.RESPONSE_TYPE;
-const secret = process.env.SECRET;
-const signing_version = process.env.SIGNING_VERSION;
-const token = process.env.TOKEN;
+const { WebClient } = require('@slack/client');
 
-let secrets;
+const response = JSON.parse(process.env.RESPONSE || '{}');
+const response_type = process.env.RESPONSE_TYPE || 'ephemeral';
+const secret = process.env.SECRET;
+const token = process.env.TOKEN || 'BOT_ACCESS_TOKEN';
+
+let secrets, slack;
 
 /**
  * Get Slack tokens from memory or AWS SecretsManager.
@@ -32,55 +32,28 @@ function getSecrets() {
 }
 
 /**
- * Verify request signature.
- *
- * @param {object} event AWS API Gateway event.
+ * Get Slack client from memory or create.
  */
-function verifyRequest(event) {
+function getSlack() {
   return new Promise((resolve, reject) => {
-    const crypto = require('crypto');
-    const qs = require('querystring');
-    const payload = qs.parse(event.body);
-    const ts = event.headers['X-Slack-Request-Timestamp']
-    const req = event.headers['X-Slack-Signature'];
-    const hmac = crypto.createHmac('sha256', secrets.SIGNING_SECRET);
-    const data = `${signing_version}:${event.headers['X-Slack-Request-Timestamp']}:${event.body}`;
-    const sig = `${signing_version}=${hmac.update(data).digest('hex')}`;
-    console.log(`SIGNATURES ${JSON.stringify({request: req, calculated: sig})}`);
-    if (Math.abs(new Date()/1000 - ts) > 60 * 5) {
-      reject('Request too old');
-    } else if (req !== sig) {
-      reject('Signatures do not match');
-    } else if (!verifyChannel(payload.channel_id)) {
-      reject(auth.channels.permission_denied);
-    } else if (!verifyUser(payload.user_id)) {
-      reject(auth.users.permission_denied);
+    if (slack) {
+      resolve(slack);
     } else {
-      resolve(payload);
+      slack = new WebClient(secrets[token]);
+      resolve(slack);
     }
   });
 }
 
 /**
- * Verify slash command was executed from authorized channel.
+ * Get payload from event.
  *
- * @param {string} channel Slack channel ID
+ * @param {object} event Event object.
  */
-function verifyChannel(channel) {
-  return auth.channels.exclude.indexOf(channel) < 0 &&
-        (auth.channels.include.length == 0 ||
-         auth.channels.include.indexOf(channel) >= 0);
-}
-
-/**
- * Verify user is authorized to execute slash command.
- *
- * @param {string} channel Slack channel ID
- */
-function verifyUser(user) {
-  return auth.users.exclude.indexOf(user) < 0 &&
-        (auth.users.include.length == 0 ||
-         auth.users.include.indexOf(user) >= 0);
+function getPayload(event) {
+  return event.Records.map((record) => {
+    return JSON.parse(Buffer.from(record.Sns.Message, 'base64'));
+  });
 }
 
 /**
@@ -89,46 +62,39 @@ function verifyUser(user) {
  * @param {object} body Slack slash command payload.
  */
 function processEvent(payload) {
-  return new Promise((resolve, reject) => {
-    if (response_type === 'dialog') {
-      console.log(`DIALOG ${JSON.stringify(response)}`);
-      const { WebClient } = require('@slack/client');
-      const slack = new WebClient(secrets[token]);
-      slack.dialog.open({
-        trigger_id: payload.trigger_id,
-        dialog: response
-      }).then((res) => {
-        resolve();
-      });
-    } else {
-      console.log(`RESPONSE ${JSON.stringify(response)}`);
-      resolve(response);
-    }
-  });
+  response.channel = response.channel || payload.channel_id;
+  if (response_type === 'dialog') {
+    console.log(`DIALOG ${JSON.stringify(response)}`);
+    return slack.dialog.open({
+      trigger_id: payload.trigger_id,
+      dialog: response
+    });
+  } else if (response_type == 'ephemeral') {
+    console.log(`EPHEMERAL ${JSON.stringify(response)}`);
+    return slack.chat.postEphemeral(response);
+  } else {
+    console.log(`IN_CHANNEL ${JSON.stringify(response)}`);
+    return slack.chat.postMessage(response);
+  }
 }
 
 /**
  * AWS Lambda handler for slash commands.
  *
- * @param {object} event AWS Lambda event.
- * @param {object} context AWS Lambda context.
- * @param {function} callback AWS Lambda callback function.
+ * @param {object} event Event object.
+ * @param {object} context Event context.
+ * @param {function} callback Lambda callback function.
  */
 function handler(event, context, callback) {
-  getSecrets().then((res) => {
-    return verifyRequest(event);
+  console.log(`EVENT ${JSON.stringify(event)}`);
+  return Promise.resolve().then(getSecrets).then(getSlack).then(() => {
+    return Promise.all(getPayload(event).map(processEvent));
   }).then((res) => {
-    return processEvent(res);
-  }).then((res) => {
-    callback(null, {
-      statusCode: '200',
-      body: JSON.stringify(res),
-      headers: {'Content-Type': 'application/json'}
-    });
+    callback();
   }).catch((err) => {
     console.error(`ERROR ${err}`);
     callback(err, {statusCode: '400', body: err.message});
   });
-};
+}
 
 exports.handler = handler;
