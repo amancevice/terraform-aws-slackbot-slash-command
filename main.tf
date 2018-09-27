@@ -30,10 +30,9 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables {
-      RESPONSE      = "${jsonencode(var.response)}"
-      RESPONSE_TYPE = "${var.response_type}"
-      SECRET        = "${var.secret}"
-      TOKEN         = "${var.token}"
+      RESPONSE = "${jsonencode(var.response)}"
+      SECRET   = "${var.secret}"
+      TOKEN    = "${var.token}"
     }
   }
 }

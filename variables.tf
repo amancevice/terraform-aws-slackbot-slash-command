@@ -35,11 +35,6 @@ variable "role" {
   description = "Slackbot role."
 }
 
-variable "response_type" {
-  description = "Slack response type (dialog, ephemeral, or in_channel)."
-  default     = "ephemeral"
-}
-
 variable "response" {
   description = "Slack response object."
   type        = "map"

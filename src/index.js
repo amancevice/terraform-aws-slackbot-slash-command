@@ -5,7 +5,7 @@ const response_type = process.env.RESPONSE_TYPE || 'ephemeral';
 const secret = process.env.SECRET;
 const token = process.env.TOKEN || 'BOT_ACCESS_TOKEN';
 
-let secrets, slack;
+let secrets;
 
 /**
  * Get Slack tokens from memory or AWS SecretsManager.
@@ -32,20 +32,6 @@ function getSecrets() {
 }
 
 /**
- * Get Slack client from memory or create.
- */
-function getSlack() {
-  return new Promise((resolve, reject) => {
-    if (slack) {
-      resolve(slack);
-    } else {
-      slack = new WebClient(secrets[token]);
-      resolve(slack);
-    }
-  });
-}
-
-/**
  * Get payload from event.
  *
  * @param {object} event Event object.
@@ -62,19 +48,24 @@ function getPayload(event) {
  * @param {object} body Slack slash command payload.
  */
 function processEvent(payload) {
-  response.channel = response.channel || payload.channel_id;
-  if (response_type === 'dialog') {
+  response.channel = payload.channel_id;
+  if (response.response_type === 'dialog') {
     console.log(`DIALOG ${JSON.stringify(response)}`);
+    const slack = new WebClient(secrets[token]);
     return slack.dialog.open({
       trigger_id: payload.trigger_id,
       dialog: response
     });
-  } else if (response_type == 'ephemeral') {
-    console.log(`EPHEMERAL ${JSON.stringify(response)}`);
-    return slack.chat.postEphemeral(response);
   } else {
-    console.log(`IN_CHANNEL ${JSON.stringify(response)}`);
-    return slack.chat.postMessage(response);
+    const rp = require('request-promise');
+    const options = {
+      method: 'POST',
+      uri: payload.response_url,
+      body: response,
+      json: true
+    };
+    console.log(`POST ${JSON.stringify(options)}`);
+    return rp(options);
   }
 }
 
@@ -87,7 +78,7 @@ function processEvent(payload) {
  */
 function handler(event, context, callback) {
   console.log(`EVENT ${JSON.stringify(event)}`);
-  return Promise.resolve().then(getSecrets).then(getSlack).then(() => {
+  return Promise.resolve().then(getSecrets).then(() => {
     return Promise.all(getPayload(event).map(processEvent));
   }).then((res) => {
     callback();
