@@ -15,11 +15,13 @@ function getSecrets() {
     console.log(`FETCH ${secret}`);
     const AWS = require('aws-sdk');
     const secretsmanager = new AWS.SecretsManager();
-    secretsmanager.getSecretValue({SecretId: secret}).promise().then((data) => {
+    return secretsmanager.getSecretValue({
+      SecretId: secret
+    }).promise().then((data) => {
       secrets = JSON.parse(data.SecretString);
       return secrets;
     });
-  });
+  }
 }
 
 /**
@@ -70,7 +72,7 @@ function processEvent(payload) {
  */
 function handler(event, context, callback) {
   console.log(`EVENT ${JSON.stringify(event)}`);
-  return Promise.resolve().then(getSecrets).then(() => {
+  return getSecrets().then(() => {
     return Promise.all(getPayload(event).map(processEvent));
   }).then((res) => {
     callback();
