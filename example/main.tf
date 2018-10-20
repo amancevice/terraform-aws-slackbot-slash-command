@@ -1,26 +1,28 @@
-provider "aws" {
+provider aws {
   region = "us-east-1"
 }
 
-module "slackbot" {
-  source                   = "amancevice/slackbot/aws"
-  callback_ids             = ["my_callback_1"]
-  event_types              = ["channel_rename"]
-  slack_verification_token = "${var.slack_verification_token}"
+module slackbot {
+  source                  = "amancevice/slackbot/aws"
+  api_description         = "My Slackbot REST API"
+  api_name                = "slackbot"
+  api_stage_name          = "v1"
+  slack_bot_access_token  = "${var.slack_bot_access_token}"
+  slack_client_id         = "${var.slack_client_id}"
+  slack_client_secret     = "${var.slack_client_secret}"
+  slack_signing_secret    = "${var.slack_signing_secret}"
+  slack_user_access_token = "${var.slack_user_access_token}"
 }
 
-module "slash_command" {
-  source                   = "amancevice/slack-slash-command/aws"
-  api_execution_arn        = "${module.socialismbot.api_execution_arn}"
-  api_invoke_url           = "${module.socialismbot.api_invoke_url}"
-  api_name                 = "${module.socialismbot.api_name}"
-  api_parent_id            = "${module.socialismbot.slash_commands_resource_id}"
-  kms_key_id               = "${module.socialismbot.kms_key_id}"
-  slack_verification_token = "${var.slack_verification_token}"
-  slack_web_api_token      = "${var.slack_web_api_token}"
-  slash_command            = "mycommand"
+module slash_command {
+  source        = "amancevice/slackbot-slash-command/aws"
+  api_name      = "${module.slackbot.api_name}"
+  role_name     = "${module.slackbot.role_name}"
+  secret_name   = "${module.slackbot.secret_name}"
+  slash_command = "mycommand"
 
   response {
-    text = ":sparkles: This will be the response of the Slash Command."
+    response_type = "in_channel"
+    text          = ":sparkles: This will be the response of the Slash Command."
   }
 }

@@ -1,23 +1,23 @@
-variable "api_name" {
+variable api_name {
   description = "Slackbot REST API Gateway Name."
 }
 
-variable "lambda_description" {
+variable lambda_description {
   description = "Lambda function description."
   default     = ""
 }
 
-variable "lambda_function_name" {
+variable lambda_function_name {
   description = "Lambda function name"
   default     = ""
 }
 
-variable "lambda_memory_size" {
+variable lambda_memory_size {
   description = "Lambda function memory size."
   default     = 512
 }
 
-variable "lambda_tags" {
+variable lambda_tags {
   description = "A set of key/value label pairs to assign to the function."
   type        = "map"
 
@@ -26,29 +26,29 @@ variable "lambda_tags" {
   }
 }
 
-variable "lambda_timeout" {
+variable lambda_timeout {
   description = "Lambda function timeout."
   default     = 3
 }
 
-variable "role" {
+variable role_name {
   description = "Slackbot role."
 }
 
-variable "response" {
+variable response {
   description = "Slack response object."
   type        = "map"
 }
 
-variable "secret" {
+variable secret_name {
   description = "Name of Slackbot secret in AWS SecretsManager."
 }
 
-variable "slash_command" {
+variable slash_command {
   description = "Name of slash command."
 }
 
-variable "token" {
+variable token {
   description = "Name of token key in Slackbot secret."
   default     = "BOT_ACCESS_TOKEN"
 }

@@ -6,11 +6,16 @@ Generic slash command handler for Slack.
 
 ```terraform
 # Slackbot API
-module "slackbot" {
-  source                 = "amancevice/slackbot/aws"
-  slack_access_token     = "${var.slack_access_token}"
-  slack_bot_access_token = "${var.slack_bot_access_token}"
-  slack_signing_secret   = "${var.slack_signing_secret}"
+module slackbot {
+  source                  = "amancevice/slackbot/aws"
+  api_description         = "My Slack app API"
+  api_name                = "<my-api>"
+  api_stage_name          = "<my-api-stage>"
+  slack_bot_access_token  = "${var.slack_bot_access_token}"
+  slack_client_id         = "${var.slack_client_id}"
+  slack_client_secret     = "${var.slack_client_secret}"
+  slack_signing_secret    = "${var.slack_signing_secret}"
+  slack_user_access_token = "${var.slack_access_token}"
 }
 
 # Slackbot slash command
@@ -18,8 +23,8 @@ module "slash_command" {
   source        = "amancevice/slack-slash-command/aws"
   api_name      = "${module.slackbot.api_name}"
   response_type = "dialog|ephemeral|in_channel"
-  role          = "${module.slackbot.role}"
-  secret        = "${module.slackbot.secret}"
+  role_name     = "${module.slackbot.role_name}"
+  secret_name   = "${module.slackbot.secret_name}"
   slash_command = "mycommand"
 
   response {

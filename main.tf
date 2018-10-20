@@ -1,25 +1,25 @@
 locals {
-  function_name = "${coalesce(var.lambda_function_name, "slack-${var.api_name}-slash-${var.slash_command}")}"
-  description   = "${coalesce(var.lambda_description, "Handler for /${var.slash_command}")}"
+  lambda_function_name = "${coalesce(var.lambda_function_name, "slack-${var.api_name}-slash-${var.slash_command}")}"
+  lambda_description   = "${coalesce(var.lambda_description, "Slack handler for /${var.slash_command}")}"
 }
 
-data "archive_file" "lambda" {
+data archive_file lambda {
   type        = "zip"
   output_path = "${path.module}/dist/package.zip"
   source_dir  = "${path.module}/src"
 }
 
-data "aws_caller_identity" "current" {
+data aws_caller_identity current {
 }
 
-data "aws_iam_role" "role" {
-  name = "${var.role}"
+data aws_iam_role role {
+  name = "${var.role_name}"
 }
 
-resource "aws_lambda_function" "lambda" {
-  description      = "${local.description}"
+resource aws_lambda_function lambda {
+  description      = "${local.lambda_description}"
   filename         = "${data.archive_file.lambda.output_path}"
-  function_name    = "${local.function_name}"
+  function_name    = "${local.lambda_function_name}"
   handler          = "index.handler"
   memory_size      = "${var.lambda_memory_size}"
   role             = "${data.aws_iam_role.role.arn}"
@@ -30,14 +30,14 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables {
-      RESPONSE = "${jsonencode(var.response)}"
-      SECRET   = "${var.secret}"
-      TOKEN    = "${var.token}"
+      AWS_SECRET = "${var.secret_name}"
+      RESPONSE   = "${jsonencode(var.response)}"
+      TOKEN      = "${var.token}"
     }
   }
 }
 
-resource "aws_lambda_permission" "sns" {
+resource aws_lambda_permission sns {
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.lambda.function_name}"
@@ -45,6 +45,6 @@ resource "aws_lambda_permission" "sns" {
   source_arn    = "${aws_sns_topic.trigger.arn}"
 }
 
-resource "aws_sns_topic" "trigger" {
+resource aws_sns_topic trigger {
   name = "slack_slash_${var.slash_command}"
 }

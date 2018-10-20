@@ -1,8 +1,5 @@
-const { WebClient } = require('@slack/client');
-
 const response = JSON.parse(process.env.RESPONSE || '{}');
-const response_type = process.env.RESPONSE_TYPE || 'ephemeral';
-const secret = process.env.SECRET;
+const secret = process.env.AWS_SECRET;
 const token = process.env.TOKEN || 'BOT_ACCESS_TOKEN';
 
 let secrets;
@@ -11,23 +8,17 @@ let secrets;
  * Get Slack tokens from memory or AWS SecretsManager.
  */
 function getSecrets() {
-  return new Promise((resolve, reject) => {
-    if (secrets) {
-      resolve(secrets);
-    } else {
-      console.log(`FETCH ${secret}`);
-      const AWS = require('aws-sdk');
-      const secretsmanager = new AWS.SecretsManager();
-      secretsmanager.getSecretValue({SecretId: secret}, (err, data) => {
-        if (err) {
-          reject(err);
-        } else {
-          secrets = JSON.parse(data.SecretString);
-          console.log(`RECEIVED ${secret}`);
-          resolve(secrets);
-        }
-      });
-    }
+  if (secrets) {
+    console.log(`CACHED ${secret}`);
+    return Promise.resolve(secrets);
+  } else {
+    console.log(`FETCH ${secret}`);
+    const AWS = require('aws-sdk');
+    const secretsmanager = new AWS.SecretsManager();
+    secretsmanager.getSecretValue({SecretId: secret}).promise().then((data) => {
+      secrets = JSON.parse(data.SecretString);
+      return secrets;
+    });
   });
 }
 
@@ -51,6 +42,7 @@ function processEvent(payload) {
   response.channel = payload.channel_id;
   if (response.response_type === 'dialog') {
     console.log(`DIALOG ${JSON.stringify(response)}`);
+    const { WebClient } = require('@slack/client');
     const slack = new WebClient(secrets[token]);
     return slack.dialog.open({
       trigger_id: payload.trigger_id,
