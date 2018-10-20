@@ -3,28 +3,24 @@ locals {
   lambda_description   = "${coalesce(var.lambda_description, "Slack handler for /${var.slash_command}")}"
 }
 
-data archive_file lambda {
-  type        = "zip"
-  output_path = "${path.module}/dist/package.zip"
-  source_dir  = "${path.module}/src"
-}
-
-data aws_caller_identity current {
-}
-
 data aws_iam_role role {
   name = "${var.role_name}"
 }
 
+resource aws_cloudwatch_log_group logs {
+  name              = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
+  retention_in_days = "${var.cloudwatch_log_group_retention_in_days}"
+}
+
 resource aws_lambda_function lambda {
   description      = "${local.lambda_description}"
-  filename         = "${data.archive_file.lambda.output_path}"
+  filename         = "${path.module}/package.zip"
   function_name    = "${local.lambda_function_name}"
   handler          = "index.handler"
   memory_size      = "${var.lambda_memory_size}"
   role             = "${data.aws_iam_role.role.arn}"
   runtime          = "nodejs8.10"
-  source_code_hash = "${data.archive_file.lambda.output_base64sha256}"
+  source_code_hash = "${base64sha256(file("${path.module}/package.zip"))}"
   tags             = "${var.lambda_tags}"
   timeout          = "${var.lambda_timeout}"
 

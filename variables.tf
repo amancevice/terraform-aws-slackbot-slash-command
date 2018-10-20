@@ -2,6 +2,11 @@ variable api_name {
   description = "Slackbot REST API Gateway Name."
 }
 
+variable cloudwatch_log_group_retention_in_days {
+  description = "Days to retain logs in CloudWatch."
+  default     = 30
+}
+
 variable lambda_description {
   description = "Lambda function description."
   default     = ""
