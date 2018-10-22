@@ -25,10 +25,7 @@ variable lambda_memory_size {
 variable lambda_tags {
   description = "A set of key/value label pairs to assign to the function."
   type        = "map"
-
-  default {
-    deployment-tool = "terraform"
-  }
+  default     = {}
 }
 
 variable lambda_timeout {
