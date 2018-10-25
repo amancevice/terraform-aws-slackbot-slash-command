@@ -38,7 +38,7 @@ resource aws_lambda_permission sns {
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.lambda.function_name}"
   principal     = "sns.amazonaws.com"
-  source_arn    = "${aws_sns_topic.trigger.arn}"
+  source_arn    = "${aws_sns_topic.topic.arn}"
 }
 
 resource aws_sns_topic topic {
