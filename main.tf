@@ -41,6 +41,12 @@ resource aws_lambda_permission sns {
   source_arn    = "${aws_sns_topic.trigger.arn}"
 }
 
-resource aws_sns_topic trigger {
+resource aws_sns_topic topic {
   name = "slack_slash_${var.slash_command}"
+}
+
+resource aws_sns_topic_subscription subscription {
+  topic_arn = "${aws_sns_topic.topic.arn}"
+  protocol  = "lambda"
+  endpoint  = "${aws_lambda_function.lambda.arn}"
 }
