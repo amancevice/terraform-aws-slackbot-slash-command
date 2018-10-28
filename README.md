@@ -22,13 +22,13 @@ module slackbot {
 module "slash_command" {
   source        = "amancevice/slack-slash-command/aws"
   api_name      = "${module.slackbot.api_name}"
-  response_type = "dialog|ephemeral|in_channel"
   role_name     = "${module.slackbot.role_name}"
   secret_name   = "${module.slackbot.secret_name}"
   slash_command = "mycommand"
 
   response {
-    text = ":sparkles: This will be the response of the Slash Command."
+    response_type = "ephemeral|in_channel|dialog"
+    text          = ":sparkles: This will be the response of the Slash Command."
   }
 }
 ```
