@@ -7,6 +7,11 @@ variable cloudwatch_log_group_retention_in_days {
   default     = 30
 }
 
+variable kms_key_arn {
+  description = "KMS Key ARN."
+  default     = ""
+}
+
 variable lambda_description {
   description = "Lambda function description."
   default     = ""
@@ -19,7 +24,7 @@ variable lambda_function_name {
 
 variable lambda_memory_size {
   description = "Lambda function memory size."
-  default     = 512
+  default     = 1024
 }
 
 variable lambda_tags {

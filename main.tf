@@ -17,6 +17,7 @@ resource aws_lambda_function lambda {
   filename         = "${path.module}/package.zip"
   function_name    = "${local.lambda_function_name}"
   handler          = "index.handler"
+  kms_key_arn      = "${var.kms_key_arn}"
   memory_size      = "${var.lambda_memory_size}"
   role             = "${data.aws_iam_role.role.arn}"
   runtime          = "nodejs8.10"
@@ -33,7 +34,7 @@ resource aws_lambda_function lambda {
   }
 }
 
-resource aws_lambda_permission sns {
+resource aws_lambda_permission invoke {
   statement_id  = "AllowExecutionFromSNS"
   action        = "lambda:InvokeFunction"
   function_name = "${aws_lambda_function.lambda.function_name}"
