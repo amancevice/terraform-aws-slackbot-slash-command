@@ -43,7 +43,7 @@ resource aws_lambda_permission invoke {
 }
 
 resource aws_sns_topic topic {
-  name = "slack_slash_${var.slash_command}"
+  name = "slack_${var.api_name}_slash_${var.slash_command}"
 }
 
 resource aws_sns_topic_subscription subscription {
