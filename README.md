@@ -20,7 +20,7 @@ module slackbot_secret {
 # Slackbot
 module slackbot {
   source          = "amancevice/slackbot/aws"
-  api_description = "My Slack app API"
+  api_description = "My Slack REST API"
   api_name        = "<my-api>"
   api_stage_name  = "<my-api-stage>"
   secret_arn      = "${module.slackbot_secret.secret_arn}"
