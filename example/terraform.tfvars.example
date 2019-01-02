@@ -1,2 +1,5 @@
-slack_verification_token = "myVerificationToken"
-slack_web_api_token      = "myWebApiToken"
+slack_bot_token      = ""
+slack_client_id      = ""
+slack_client_secret  = ""
+slack_signing_secret = ""
+slack_user_token     = ""

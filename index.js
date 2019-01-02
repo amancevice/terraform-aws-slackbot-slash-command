@@ -1,6 +1,6 @@
 const response = JSON.parse(process.env.RESPONSE || '{}');
 const secret = process.env.AWS_SECRET;
-const token = process.env.TOKEN || 'BOT_ACCESS_TOKEN';
+const token = process.env.TOKEN || 'BOT_TOKEN';
 
 let secrets;
 
