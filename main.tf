@@ -9,7 +9,8 @@ data aws_iam_role role {
 
 resource aws_cloudwatch_log_group logs {
   name              = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
-  retention_in_days = "${var.cloudwatch_log_group_retention_in_days}"
+  retention_in_days = "${var.log_group_retention_in_days}"
+  tags              = "${var.log_group_tags}"
 }
 
 resource aws_lambda_function lambda {

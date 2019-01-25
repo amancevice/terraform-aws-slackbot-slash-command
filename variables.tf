@@ -2,11 +2,6 @@ variable api_name {
   description = "Slackbot REST API Gateway Name."
 }
 
-variable cloudwatch_log_group_retention_in_days {
-  description = "Days to retain logs in CloudWatch."
-  default     = 30
-}
-
 variable kms_key_arn {
   description = "KMS Key ARN."
   default     = ""
@@ -28,7 +23,7 @@ variable lambda_memory_size {
 }
 
 variable lambda_tags {
-  description = "A set of key/value label pairs to assign to the function."
+  description = "AWS resource tags."
   type        = "map"
   default     = {}
 }
@@ -36,6 +31,17 @@ variable lambda_tags {
 variable lambda_timeout {
   description = "Lambda function timeout."
   default     = 3
+}
+
+variable log_group_retention_in_days {
+  description = "Days to retain logs in CloudWatch."
+  default     = 30
+}
+
+variable log_group_tags {
+  description = "AWS resource tags."
+  type        = "map"
+  default     = {}
 }
 
 variable role_name {
