@@ -49,8 +49,7 @@ variable role_name {
 }
 
 variable response {
-  description = "Slack response object."
-  type        = "map"
+  description = "Slack response JSON."
 }
 
 variable secret_name {
@@ -59,9 +58,4 @@ variable secret_name {
 
 variable slash_command {
   description = "Name of slash command."
-}
-
-variable token {
-  description = "Name of token key in Slackbot secret."
-  default     = "BOT_TOKEN"
 }

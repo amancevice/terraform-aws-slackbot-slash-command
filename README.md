@@ -7,17 +7,30 @@ Generic slash command handler for Slack.
 ```hcl
 # Slackbot secrets
 module slackbot_secret {
-  source               = "amancevice/slackbot-secrets/aws"
-  kms_key_alias        = "alias/slack/your-kms-key-alias"
-  secret_name          = "slack/your-secret-name"
-  slack_bot_token      = "${var.slack_bot_token}"
-  slack_client_id      = "${var.slack_client_id}"
-  slack_client_secret  = "${var.slack_client_secret}"
-  slack_signing_secret = "${var.slack_signing_secret}"
-  slack_user_token     = "${var.slack_user_token}"
+  source                   = "amancevice/slackbot-secrets/aws"
+  kms_key_alias            = "alias/slack/your-kms-key-alias"
+  secret_name              = "slack/your-secret-name"
+  slack_token              = "${var.slack_bot_access_token}"
+  slack_client_id          = "${var.slack_client_id}"
+  slack_client_secret      = "${var.slack_client_secret}"
+  slack_oauth_redirect_uri = "${var.slack_oauth_redirect_uri}"
+  slack_signing_secret     = "${var.slack_signing_secret}"
+  slack_signing_version    = "${var.slack_signing_version}"
+
+  // Additional secrets
+  secrets {
+    FIZZ = "buzz"
+  }
 }
 
 # Slackbot
+locals {
+  slash_response {
+    response_type = "ephemeral | in_channel | dialog"
+    text          = ":sparkles: This will be the response of the Slash Command."
+  }
+}
+
 module slackbot {
   source          = "amancevice/slackbot/aws"
   api_description = "My Slack REST API"
@@ -33,12 +46,8 @@ module "slackbot_slash_command" {
   api_name      = "${module.slackbot.api_name}"
   role_name     = "${module.slackbot.role_name}"
   secret_name   = "${module.slackbot.secret_name}"
+  response      = "${jsonencode(local.slash_response)}"
   slash_command = "mycommand"
-
-  response {
-    response_type = "ephemeral | in_channel | dialog"
-    text          = ":sparkles: This will be the response of the Slash Command."
-  }
 }
 ```
 

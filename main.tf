@@ -29,8 +29,7 @@ resource aws_lambda_function lambda {
   environment {
     variables {
       AWS_SECRET = "${var.secret_name}"
-      RESPONSE   = "${jsonencode(var.response)}"
-      TOKEN      = "${var.token}"
+      RESPONSE   = "${var.response}"
     }
   }
 }
