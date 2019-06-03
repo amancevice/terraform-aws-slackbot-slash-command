@@ -9,4 +9,9 @@
 *.tfvars
 
 # module
-node_modules/
+**/build/
+**/dist/
+**/node_modules/*
+*.env
+*.zip
+!package.zip

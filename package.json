@@ -1,14 +1,11 @@
 {
   "dependencies": {
-    "@slack/client": "^4.8.0",
+    "@slack/web-api": "^5.0.1",
     "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "request-promise": "^4.2.4"
   },
   "devDependencies": {
-    "aws-sdk": "^2.400.0"
+    "aws-sdk": "^2.466.0"
   },
-  "private": true,
-  "scripts": {
-    "package": "docker-compose run package && docker-compose down"
-  }
+  "private": true
 }

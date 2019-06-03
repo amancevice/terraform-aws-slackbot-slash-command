@@ -1,6 +1,6 @@
 const AWS           = require('aws-sdk');
 const request       = require('request-promise');
-const { WebClient } = require('@slack/client');
+const { WebClient } = require('@slack/web-api');
 
 const AWS_SECRET = process.env.AWS_SECRET;
 const RESPONSE   = process.env.RESPONSE;
