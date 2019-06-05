@@ -1,35 +1,37 @@
-# Project
-runtime   := nodejs10.x
-name      := slackbot-slash-command
-release   := $(shell git describe --tags)
-build     := $(name)-$(release)
-buildfile := build/$(build).build
-distfile  := dist/$(build).zip
+runtime := nodejs10.x
+name    := slackbot-slash-command
+build   := $(shell git describe --tags --always)
 
-# Docker Build
-image := amancevice/$(name)
-digest = $(shell cat $(buildfile))
+image   := amancevice/$(name)
+iidfile := .docker/$(build)
+digest   = $(shell cat $(iidfile))
 
-$(distfile): package.zip | dist
-	docker run --rm $(digest) cat /var/task/package.zip > $@
+$(name)-$(build).zip: main.tf outputs.tf variables.tf package.zip | node_modules
+	zip $@ $?
 
-package.zip: package-lock.json
-	docker run --rm $(digest) cat /var/task/$@ > $@
+package.zip: index.js package-lock.json
+	docker run --rm $(digest) cat $@ > $@
 
-package-lock.json: package.json | $(buildfile)
-	docker run --rm $(digest) cat /var/task/$@ > $@
+package-lock.json: package.json | $(iidfile)
+	docker run --rm $(digest) cat $@ > $@
 
-$(buildfile): index.js | build
+node_modules: | $(iidfile)
+	docker run --rm $(digest) tar czO $@ | tar xzf -
+
+$(iidfile): package.json | .docker
 	docker build \
 	--build-arg RUNTIME=$(runtime) \
 	--iidfile $@ \
-	--tag $(image):$(release) .
+	--tag $(image):$(build) .
 
-%:
+.docker:
 	mkdir -p $@
 
-.PHONY: clean
+.PHONY: shell clean
+
+shell: | $(iidfile)
+	docker run --rm -it $(digest) /bin/bash
 
 clean:
-	docker image rm -f $(image) $(shell sed G build/*)
-	rm -rf build dist
+	docker image rm -f $(image) $(shell sed G .docker/*)
+	rm -rf .docker $(name)*.zip node_modules
