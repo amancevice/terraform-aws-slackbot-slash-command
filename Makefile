@@ -1,37 +1,31 @@
-runtime := nodejs10.x
 name    := slackbot-slash-command
+runtime := nodejs10.x
 build   := $(shell git describe --tags --always)
+digest   = $(shell cat .docker/$(build)$(1))
 
-image   := amancevice/$(name)
-iidfile := .docker/$(build)
-digest   = $(shell cat $(iidfile))
+.PHONY: all clean shell@% test
 
-$(name)-$(build).zip: main.tf outputs.tf variables.tf package.zip | node_modules
-	zip $@ $?
-
-package.zip: index.js package-lock.json
-	docker run --rm $(digest) cat $@ > $@
-
-package-lock.json: package.json | $(iidfile)
-	docker run --rm $(digest) cat $@ > $@
-
-node_modules: | $(iidfile)
-	docker run --rm $(digest) tar czO $@ | tar xzf -
-
-$(iidfile): package.json | .docker
-	docker build \
-	--build-arg RUNTIME=$(runtime) \
-	--iidfile $@ \
-	--tag $(image):$(build) .
+all: package-lock.json package.zip
 
 .docker:
 	mkdir -p $@
 
-.PHONY: shell clean
+.docker/$(build)@test: .docker/$(build)@build
+.docker/$(build)@%: | .docker
+	docker build \
+	--build-arg RUNTIME=$(runtime) \
+	--iidfile $@ \
+	--tag amancevice/$(name):$(build)-$* \
+	--target $* .
 
-shell: | $(iidfile)
-	docker run --rm -it $(digest) /bin/bash
+package-lock.json package.zip: .docker/$(build)@build
+	docker run --rm -w /var/task/ $(call digest,@build) cat $@ > $@
 
 clean:
-	docker image rm -f $(image) $(shell sed G .docker/*)
-	rm -rf .docker $(name)*.zip node_modules
+	-docker image rm -f $(shell awk {print} .docker/*)
+	-rm -rf .docker
+
+shell@%: .docker/$(build)@%
+	docker run --rm -it $(call digest,@$*) /bin/bash
+
+test: all .docker/$(build)@test
