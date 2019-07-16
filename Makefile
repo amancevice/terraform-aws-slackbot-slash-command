@@ -1,11 +1,12 @@
 name    := slackbot-slash-command
 runtime := nodejs10.x
+stages  := build test
 build   := $(shell git describe --tags --always)
-digest   = $(shell cat .docker/$(build)$(1))
+shells  := $(foreach stage,$(stages),shell@$(stage))
 
-.PHONY: all clean shell@% test
+.PHONY: all clean $(stages) $(shells)
 
-all: package-lock.json package.zip
+all: package-lock.json package.zip test
 
 .docker:
 	mkdir -p $@
@@ -19,13 +20,13 @@ all: package-lock.json package.zip
 	--target $* .
 
 package-lock.json package.zip: .docker/$(build)@build
-	docker run --rm -w /var/task/ $(call digest,@build) cat $@ > $@
+	docker run --rm $(shell cat $<) cat $@ > $@
 
 clean:
 	-docker image rm -f $(shell awk {print} .docker/*)
-	-rm -rf .docker
+	-rm -rf .docker *.zip
 
-shell@%: .docker/$(build)@%
-	docker run --rm -it $(call digest,@$*) /bin/bash
+$(stages): %: .docker/$(build)@%
 
-test: all .docker/$(build)@test
+$(shells): shell@%: .docker/$(build)@%
+	docker run --rm -it $(shell cat $<) /bin/bash
