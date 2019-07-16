@@ -24,7 +24,7 @@ package-lock.json package.zip: .docker/$(build)@build
 
 clean:
 	-docker image rm -f $(shell awk {print} .docker/*)
-	-rm -rf .docker *.zip
+	-rm -rf .docker
 
 $(stages): %: .docker/$(build)@%
 
