@@ -1,8 +1,9 @@
-name    := slackbot-slash-command
 runtime := nodejs10.x
 stages  := build test
 build   := $(shell git describe --tags --always)
 shells  := $(foreach stage,$(stages),shell@$(stage))
+
+terraform_version := 0.12.6
 
 .PHONY: all clean $(stages) $(shells)
 
@@ -15,8 +16,9 @@ all: package-lock.json package.zip test
 .docker/$(build)@%: | .docker
 	docker build \
 	--build-arg RUNTIME=$(runtime) \
+	--build-arg TERRAFORM_VERSION=$(terraform_version) \
 	--iidfile $@ \
-	--tag amancevice/$(name):$(build)-$* \
+	--tag amancevice/slackbot-slash-command:$(build)-$* \
 	--target $* .
 
 package-lock.json package.zip: .docker/$(build)@build
