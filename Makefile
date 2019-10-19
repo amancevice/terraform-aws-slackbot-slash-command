@@ -3,7 +3,7 @@ stages  := build test
 build   := $(shell git describe --tags --always)
 shells  := $(foreach stage,$(stages),shell@$(stage))
 
-terraform_version := 0.12.6
+terraform_version := latest
 
 .PHONY: all clean $(stages) $(shells)
 
@@ -16,7 +16,7 @@ all: package-lock.json package.zip test
 .docker/$(build)@%: | .docker
 	docker build \
 	--build-arg RUNTIME=$(runtime) \
-	--build-arg TERRAFORM_VERSION=$(terraform_version) \
+	--build-arg TERRAFORM=$(terraform_version) \
 	--iidfile $@ \
 	--tag amancevice/slackbot-slash-command:$(build)-$* \
 	--target $* .

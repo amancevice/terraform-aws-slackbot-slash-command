@@ -56,6 +56,10 @@ variable secret_name {
   description = "Name of Slackbot secret in AWS SecretsManager."
 }
 
+variable slackbot_topic {
+  description = "Slackbot SNS topic."
+}
+
 variable slash_command {
   description = "Name of slash command."
 }
