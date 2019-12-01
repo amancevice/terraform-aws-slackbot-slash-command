@@ -1,4 +1,4 @@
-runtime   := nodejs10.x
+runtime   := nodejs12.x
 stages    := build test
 terraform := latest
 build     := $(shell git describe --tags --always)
@@ -15,7 +15,7 @@ all: node_modules package-lock.json package.zip
 .docker/$(build)@%: | .docker
 	docker build \
 	--build-arg RUNTIME=$(runtime) \
-	--build-arg TERRAFORM=$(terraform_version) \
+	--build-arg TERRAFORM=$(terraform) \
 	--iidfile $@ \
 	--tag amancevice/slackbot-slash-command:$(build)-$* \
 	--target $* .

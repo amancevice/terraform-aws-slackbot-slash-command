@@ -50,7 +50,7 @@ resource aws_lambda_function lambda {
   kms_key_arn      = local.kms_key_arn
   memory_size      = local.lambda_memory_size
   role             = data.aws_iam_role.role.arn
-  runtime          = "nodejs10.x"
+  runtime          = "nodejs12.x"
   source_code_hash = filebase64sha256("${path.module}/package.zip")
   tags             = local.lambda_tags
   timeout          = local.lambda_timeout
