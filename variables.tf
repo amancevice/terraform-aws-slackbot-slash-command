@@ -24,7 +24,7 @@ variable lambda_memory_size {
 
 variable lambda_tags {
   description = "AWS resource tags."
-  type        = "map"
+  type        = map
   default     = {}
 }
 
@@ -40,7 +40,7 @@ variable log_group_retention_in_days {
 
 variable log_group_tags {
   description = "AWS resource tags."
-  type        = "map"
+  type        = map
   default     = {}
 }
 
