@@ -19,9 +19,11 @@ default: package-lock.json package.zip test
 	docker build \
 	--build-arg RUNTIME=$(RUNTIME) \
 	--build-arg TERRAFORM=$(TERRAFORM) \
-	--iidfile $@ \
+	--iidfile $@@$(TIMESTAMP) \
 	--tag amancevice/slackbot-slash-command:$(BUILD)-$* \
-	--target $* .
+	--target $* \
+	.
+	cp $@@$(TIMESTAMP) $@
 
 package-lock.json package.zip: .docker/$(BUILD)-build
 	docker run --rm --entrypoint cat $(shell cat $<) $@ > $@
