@@ -1,36 +1,43 @@
-runtime   := nodejs12.x
-stages    := build test
-terraform := latest
-build     := $(shell git describe --tags --always)
-shells    := $(foreach stage,$(stages),shell@$(stage))
+RUNTIME   := nodejs12.x
+STAGES    := build test
+TERRAFORM := latest
+BUILD     := $(shell git describe --tags --always)
+CLEANS    := $(foreach STAGE,$(STAGES),clean@$(STAGE))
+IMAGES    := $(foreach STAGE,$(STAGES),image@$(STAGE))
+SHELLS    := $(foreach STAGE,$(STAGES),shell@$(STAGE))
 
-.PHONY: all clean $(stages) $(shells)
+.PHONY: default clean $(CLEANS) $(IMAGES) $(SHELLS)
 
-all: node_modules package-lock.json package.zip
+default: package-lock.json package.zip test
 
 .docker:
 	mkdir -p $@
 
-.docker/$(build)@test: .docker/$(build)@build
-.docker/$(build)@%: | .docker
+.docker/$(BUILD)-build: package.json
+.docker/$(BUILD)-test:  .docker/$(BUILD)-build
+.docker/$(BUILD)-%:   | .docker
 	docker build \
-	--build-arg RUNTIME=$(runtime) \
-	--build-arg TERRAFORM=$(terraform) \
+	--build-arg RUNTIME=$(RUNTIME) \
+	--build-arg TERRAFORM=$(TERRAFORM) \
 	--iidfile $@ \
-	--tag amancevice/slackbot-slash-command:$(build)-$* \
+	--tag amancevice/slackbot-slash-command:$(BUILD)-$* \
 	--target $* .
 
-node_modules:
-	npm install
+package-lock.json package.zip: .docker/$(BUILD)-build
+	docker run --rm --entrypoint cat $(shell cat $<) $@ > $@
 
-package-lock.json package.zip: .docker/$(build)@build
-	docker run --rm $(shell cat $<) cat $@ > $@
+clean: $(CLEANS)
 
-clean:
-	-docker image rm -f $(shell awk {print} .docker/*)
+clobber: | .docker
+	-awk {print} .docker/* 2> /dev/null | uniq | xargs docker image rm --force
 	-rm -rf .docker node_modules
 
-$(stages): %: .docker/$(build)@%
+test: .docker/$(BUILD)-test
 
-$(shells): shell@%: .docker/$(build)@%
-	docker run --rm -it $(shell cat $<) /bin/bash
+$(CLEANS): clean@%:
+	-rm -rf .docker/$(BUILD)-$*
+
+$(IMAGES): image@%: .docker/$(BUILD)-%
+
+$(SHELLS): shell@%: .docker/$(BUILD)-%
+	docker run --rm -it --entrypoint sh $(shell cat $<)
