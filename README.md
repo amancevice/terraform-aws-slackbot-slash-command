@@ -26,5 +26,3 @@ module slackbot_slash_command {
   slash_command = "my-command-name"
 }
 ```
-
-This will add an SNS topic `slack_<my-api>_slash_<slash-command>` whose messages trigger a Lambda function to issue the response via the Slack Web API.
