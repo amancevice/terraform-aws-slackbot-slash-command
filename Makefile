@@ -6,7 +6,7 @@ CLEANS    := $(foreach STAGE,$(STAGES),clean@$(STAGE))
 IMAGES    := $(foreach STAGE,$(STAGES),image@$(STAGE))
 SHELLS    := $(foreach STAGE,$(STAGES),shell@$(STAGE))
 
-.PHONY: default clean clobber $(CLEANS) $(IMAGES) $(SHELLS)
+.PHONY: default clean clobber test $(CLEANS) $(IMAGES) $(SHELLS)
 
 default: package-lock.json package.zip test
 
