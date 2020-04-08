@@ -17,23 +17,15 @@ locals {
   log_group_retention_in_days = var.log_group_retention_in_days
   log_group_tags              = var.log_group_tags
   response                    = var.response
-  role_name                   = var.role_name
+  role_arn                    = var.role_arn
   secret_name                 = var.secret_name
-  slackbot_topic              = var.slackbot_topic
   slash_command               = var.slash_command
+  topic_arn                   = var.topic_arn
 
   filter_policy = {
     id   = [local.slash_command]
     type = ["slash"]
   }
-}
-
-data aws_iam_role role {
-  name = local.role_name
-}
-
-data aws_sns_topic topic {
-  name = local.slackbot_topic
 }
 
 resource aws_cloudwatch_log_group logs {
@@ -49,7 +41,7 @@ resource aws_lambda_function lambda {
   handler          = "index.handler"
   kms_key_arn      = local.kms_key_arn
   memory_size      = local.lambda_memory_size
-  role             = data.aws_iam_role.role.arn
+  role             = local.role_arn
   runtime          = "nodejs12.x"
   source_code_hash = filebase64sha256("${path.module}/package.zip")
   tags             = local.lambda_tags
@@ -67,12 +59,12 @@ resource aws_lambda_permission invoke {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda.function_name
   principal     = "sns.amazonaws.com"
-  source_arn    = data.aws_sns_topic.topic.arn
+  source_arn    = local.topic_arn
 }
 
 resource aws_sns_topic_subscription subscription {
   endpoint      = aws_lambda_function.lambda.arn
   filter_policy = jsonencode(local.filter_policy)
   protocol      = "lambda"
-  topic_arn     = data.aws_sns_topic.topic.arn
+  topic_arn     = local.topic_arn
 }

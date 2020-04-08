@@ -44,8 +44,8 @@ variable log_group_tags {
   default     = {}
 }
 
-variable role_name {
-  description = "Slackbot role"
+variable role_arn {
+  description = "Slackbot role ARN"
 }
 
 variable response {
@@ -56,10 +56,10 @@ variable secret_name {
   description = "Name of Slackbot secret in AWS SecretsManager"
 }
 
-variable slackbot_topic {
-  description = "Slackbot SNS topic"
-}
-
 variable slash_command {
   description = "Name of slash command"
+}
+
+variable topic_arn {
+  description = "Slackbot SNS topic"
 }
