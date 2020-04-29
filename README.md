@@ -17,7 +17,7 @@ locals {
 }
 
 module slackbot_slash_command {
-  source        = "amancevice/slack-slash-command/aws"
+  source        = "amancevice/slackbot-slash-command/aws"
   version       = "~> 15.0"
   api_name      = "<api-gateway-rest-api-name>"
   role_name     = "<iam-role-name>"
