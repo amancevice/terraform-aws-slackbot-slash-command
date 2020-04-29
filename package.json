@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@slack/web-api": "^5.0.1",
+    "@slack/web-api": "^5.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
   },
