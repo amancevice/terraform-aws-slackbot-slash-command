@@ -18,20 +18,31 @@ const getSlack = async (options) => {
 const handle = async (record) => {
   const response = JSON.parse(RESPONSE || '{}');
   const payload  = JSON.parse(record.Sns.Message);
-  response.channel = payload.channel_id;
+
+  // Dialog response (deprecated)
   if (response.response_type === 'dialog') {
     return slack.dialog.open({
       dialog:     response,
       trigger_id: payload.trigger_id,
     });
-  } else {
-    return request({
-      body:   response,
-      json:   true,
-      method: 'POST',
-      uri:    payload.response_url,
+  }
+
+  // Modal response
+  if (response.type === 'modal') {
+    return slack.views.open({
+      trigger_id: payload.trigger_id,
+      view:       response,
     });
   }
+
+  // Normal response
+  response.channel = payload.channel_id;
+  return request({
+    body:   response,
+    json:   true,
+    method: 'POST',
+    uri:    payload.response_url,
+  });
 };
 
 exports.handler = async (event) => {
