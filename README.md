@@ -7,7 +7,7 @@ Generic slash command handler for Slack.
 
 ## Quickstart
 
-```hcl
+```terraform
 locals {
   slash_response = {
     response_type = "[ ephemeral | in_channel | dialog ]"
@@ -19,11 +19,18 @@ locals {
   }
 }
 
+module slackbot {
+  source      = "amancevice/slackbot/aws"
+  version     = "~> 18.1"
+  secret_name = "<secretsmanager-secret-name>"
+  # ...
+}
+
 module slackbot_slash_command {
   source        = "amancevice/slackbot-slash-command/aws"
   version       = "~> 15.1"
-  api_name      = "<api-gateway-rest-api-name>"
-  role_name     = "<iam-role-name>"
+  api_name      = module.slackbot.api.name
+  role_arn      = module.slackbot.role.arn
   secret_name   = "<secretsmanager-secret-name>"
   response      = jsonencode(local.slash_response)
   slash_command = "my-command-name"
