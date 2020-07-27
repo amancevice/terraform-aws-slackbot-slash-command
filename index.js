@@ -1,5 +1,5 @@
 const AWS           = require('aws-sdk');
-const request       = require('request-promise');
+const axios         = require('axios');
 const { WebClient } = require('@slack/web-api');
 
 const AWS_SECRET = process.env.AWS_SECRET;
@@ -21,28 +21,19 @@ const handle = async (record) => {
 
   // Dialog response (deprecated)
   if (response.response_type === 'dialog') {
-    return slack.dialog.open({
-      dialog:     response,
-      trigger_id: payload.trigger_id,
-    });
+    return slack.dialog.open({dialog: response, trigger_id: payload.trigger_id});
   }
 
   // Modal response
-  if (response.type === 'modal') {
-    return slack.views.open({
-      trigger_id: payload.trigger_id,
-      view:       response,
-    });
+  else if (response.type === 'modal') {
+    return slack.views.open({view: response, trigger_id: payload.trigger_id});
   }
 
-  // Normal response
-  response.channel = payload.channel_id;
-  return request({
-    body:   response,
-    json:   true,
-    method: 'POST',
-    uri:    payload.response_url,
-  });
+  // Direct response
+  else {
+    response.channel = payload.channel_id;
+    return axios.post(payload.response_url, response);
+  }
 };
 
 exports.handler = async (event) => {
