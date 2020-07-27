@@ -1,20 +1,15 @@
-variable api_name {
-  description = "Slackbot REST API Gateway Name"
-}
-
-variable kms_key_arn {
-  description = "KMS Key ARN"
-  default     = ""
-}
-
 variable lambda_description {
   description = "Lambda function description"
-  default     = ""
+  default     = null
 }
 
 variable lambda_function_name {
   description = "Lambda function name"
-  default     = ""
+}
+
+variable lambda_kms_key_arn {
+  description = "KMS Key ARN"
+  default     = null
 }
 
 variable lambda_memory_size {
@@ -22,9 +17,13 @@ variable lambda_memory_size {
   default     = 128
 }
 
+variable lambda_role_arn {
+  description = "Slackbot role ARN"
+}
+
 variable lambda_tags {
   description = "AWS resource tags"
-  type        = map
+  type        = map(string)
   default     = {}
 }
 
@@ -40,26 +39,22 @@ variable log_group_retention_in_days {
 
 variable log_group_tags {
   description = "AWS resource tags"
-  type        = map
+  type        = map(string)
   default     = {}
 }
 
-variable role_arn {
-  description = "Slackbot role ARN"
-}
-
-variable response {
+variable slack_response {
   description = "Slack response JSON"
 }
 
-variable secret_name {
+variable slack_secret_name {
   description = "Name of Slackbot secret in AWS SecretsManager"
 }
 
-variable slash_command {
+variable slack_slash_command {
   description = "Name of slash command"
 }
 
-variable topic_arn {
+variable slack_topic_arn {
   description = "Slackbot SNS topic"
 }
