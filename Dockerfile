@@ -1,15 +1,6 @@
-ARG RUNTIME=nodejs10.x
-ARG TERRAFORM=latest
-
-FROM lambci/lambda:build-${RUNTIME} AS zip
+ARG RUNTIME=nodejs12.x
+FROM lambci/lambda:build-${RUNTIME}
 COPY . .
-RUN npm install --package-lock-only
 RUN npm install --production
-RUN zip -r package.zip .
-
-FROM hashicorp/terraform:${TERRAFORM} AS test
-COPY --from=zip /var/task/package.zip .
-ARG AWS_DEFAULT_REGION=us-east-1
-RUN terraform init
-RUN terraform fmt -check
-RUN terraform validate
+RUN zip -9r package.zip index.js node_modules package*.json
+RUN npm install

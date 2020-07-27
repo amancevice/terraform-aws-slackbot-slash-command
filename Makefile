@@ -1,34 +1,28 @@
-REPO      := amancevice/slackbot-slash-command
-RUNTIME   := nodejs12.x
-STAGES    := zip test
-TERRAFORM := latest
-VERSION   := $(shell git describe --tags --always)
+REPO    := amancevice/$(shell basename $$PWD)
+RUNTIME := nodejs12.x
 
-.PHONY: default clean clobber $(STAGES)
-
-default: package-lock.json package.zip test
-
-.docker:
-	mkdir -p $@
-
-.docker/zip: index.js package.json
-.docker/test: .docker/zip
-.docker/%: | .docker
-	docker build \
-	--build-arg RUNTIME=$(RUNTIME) \
-	--build-arg TERRAFORM=$(TERRAFORM) \
-	--iidfile $@ \
-	--tag $(REPO):$* \
-	--target $* \
-	.
-
-package-lock.json package.zip: .docker/zip
+package.zip: package.iid package-lock.json
 	docker run --rm --entrypoint cat $$(cat $<) $@ > $@
 
+package-lock.json: package.iid
+	docker run --rm --entrypoint cat $$(cat $<) $@ > $@
+
+package.iid: package.json Dockerfile
+	docker build --build-arg RUNTIME=$(RUNTIME) --iidfile $@ --tag $(REPO) .
+
+.terraform:
+	terraform init
+
+.PHONY: clean clobber validate zip
+
 clean:
-	rm -rf .docker
+	rm -rf package.iid
 
 clobber: clean
-	docker image ls $(REPO) --quiet | uniq | xargs docker image rm --force
+	docker image ls --quiet $(REPO) | uniq | xargs docker image rm --force
 
-$(STAGES): %: .docker/%
+validate: | .terraform
+	terraform fmt -check
+	terraform validate
+
+zip: package.zip

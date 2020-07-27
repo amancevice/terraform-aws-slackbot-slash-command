@@ -9,8 +9,8 @@
 *.tfvars
 
 # module
-**/.docker/
 **/node_modules/
 *.env
+*.iid
 *.zip
 !package.zip
