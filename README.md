@@ -3,36 +3,53 @@
 [![terraform](https://img.shields.io/github/v/tag/amancevice/terraform-aws-slackbot-slash-command?color=62f&label=version&logo=terraform&style=flat-square)](https://registry.terraform.io/modules/amancevice/serverless-pypi/aws)
 [![build](https://img.shields.io/github/workflow/status/amancevice/terraform-aws-slackbot-slash-command/Test?logo=github&style=flat-square)](https://github.com/amancevice/terraform-aws-slackbot-slash-command/actions)
 
-Generic slash command handler for Slack.
+Add-on for [amancevice/slackbot/aws](https://github.com/amancevice/terraform-aws-slackbot) terraform module to handle /slash-commands in with your Slack App
 
 ## Quickstart
 
 ```terraform
-locals {
-  slash_response = {
-    response_type = "[ ephemeral | in_channel | dialog ]"
-    text          = ":sparkles: This will be the response of the Slash Command."
-
-    blocks = {
-      /* … */
-    }
-  }
-}
-
 module slackbot {
-  source      = "amancevice/slackbot/aws"
-  version     = "~> 18.1"
-  secret_name = "<secretsmanager-secret-name>"
-  # ...
+  source  = "amancevice/slackbot/aws"
+  version = "~> 18.2"
+  # …
 }
 
 module slackbot_slash_command {
-  source        = "amancevice/slackbot-slash-command/aws"
-  version       = "~> 15.1"
-  api_name      = module.slackbot.api.name
-  role_arn      = module.slackbot.role.arn
-  secret_name   = "<secretsmanager-secret-name>"
-  response      = jsonencode(local.slash_response)
-  slash_command = "my-command-name"
+  source  = "amancevice/slackbot-slash-command/aws"
+  version = "~> 16.0"
+
+  # Required
+
+  lambda_role_arn   = module.slackbot.role.arn
+  slack_secret_name = module.slackbot.secret.name
+  slack_topic_arn   = module.slackbot.topic.arn
+
+  lambda_function_name = "my-slash-command"
+  slack_slash_command  = "example"
+
+  slack_response = jsonencode({
+    response_type = "ephemeral | in_channel | dialog | modal"
+    text          = ":sparkles: This will be the response"
+
+    blocks = [
+      /* … */
+    ]
+  })
+
+  # Optional
+
+  lambda_description          = "Slackbot handler for /example"
+  lambda_kms_key_arn          = "<kms-key-arn>"
+  lambda_memory_size          = 128
+  lambda_timeout              = 3
+  log_group_retention_in_days = 30
+
+  log_group_tags = {
+    /* … */
+  }
+
+  lambda_tags = {
+    /* … */
+  }
 }
 ```
