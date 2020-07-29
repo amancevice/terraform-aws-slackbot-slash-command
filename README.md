@@ -3,7 +3,7 @@
 [![terraform](https://img.shields.io/github/v/tag/amancevice/terraform-aws-slackbot-slash-command?color=62f&label=version&logo=terraform&style=flat-square)](https://registry.terraform.io/modules/amancevice/serverless-pypi/aws)
 [![build](https://img.shields.io/github/workflow/status/amancevice/terraform-aws-slackbot-slash-command/validate?logo=github&style=flat-square)](https://github.com/amancevice/terraform-aws-slackbot-slash-command/actions)
 
-Add-on for [amancevice/slackbot/aws](https://github.com/amancevice/terraform-aws-slackbot) terraform module to handle /slash-commands in with your Slack App
+Add-on for [amancevice/slackbot/aws](https://github.com/amancevice/terraform-aws-slackbot) terraform module to handle /slash-commands in your Slack App
 
 ## Quickstart
 
