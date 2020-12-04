@@ -1,8 +1,11 @@
 terraform {
-  required_version = ">= 0.12.0"
+  required_version = "~> 0.13"
 
   required_providers {
-    aws = ">= 2.7.0"
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -38,13 +41,13 @@ locals {
   }
 }
 
-resource aws_cloudwatch_log_group logs {
+resource "aws_cloudwatch_log_group" "logs" {
   name              = "/aws/lambda/${aws_lambda_function.lambda.function_name}"
   retention_in_days = local.log_group.retention_in_days
   tags              = local.log_group.tags
 }
 
-resource aws_lambda_function lambda {
+resource "aws_lambda_function" "lambda" {
   description      = local.lambda.description
   filename         = local.lambda.filename
   function_name    = local.lambda.function_name
@@ -62,14 +65,14 @@ resource aws_lambda_function lambda {
   }
 }
 
-resource aws_lambda_permission invoke {
+resource "aws_lambda_permission" "invoke" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.lambda.function_name
   principal     = "sns.amazonaws.com"
   source_arn    = local.slack.topic_arn
 }
 
-resource aws_sns_topic_subscription subscription {
+resource "aws_sns_topic_subscription" "subscription" {
   endpoint  = aws_lambda_function.lambda.arn
   protocol  = "lambda"
   topic_arn = local.slack.topic_arn
