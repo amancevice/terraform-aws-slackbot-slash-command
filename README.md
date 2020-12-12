@@ -8,13 +8,13 @@ Add-on for [amancevice/slackbot/aws](https://github.com/amancevice/terraform-aws
 ## Quickstart
 
 ```terraform
-module slackbot {
+module "slackbot" {
   source  = "amancevice/slackbot/aws"
   version = "~> 18.2"
   # …
 }
 
-module slackbot_slash_command {
+module "slackbot_slash_command" {
   source  = "amancevice/slackbot-slash-command/aws"
   version = "~> 16.0"
 
