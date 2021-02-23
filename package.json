@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@slack/web-api": "^5.14.0",
+    "@slack/web-api": "^6.0.0",
     "axios": "^0.21.1"
   },
   "devDependencies": {

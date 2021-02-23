@@ -21,6 +21,11 @@ variable "lambda_role_arn" {
   description = "Slackbot role ARN"
 }
 
+variable "lambda_runtime" {
+  description = "Lambda runtime"
+  default     = "nodejs14.x"
+}
+
 variable "lambda_tags" {
   description = "AWS resource tags"
   type        = map(string)

@@ -4,7 +4,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 3.0"
+      version = "~> 3.29"
     }
   }
 }
@@ -17,7 +17,7 @@ locals {
     handler       = "index.handler"
     kms_key_arn   = var.lambda_kms_key_arn
     role_arn      = var.lambda_role_arn
-    runtime       = "nodejs12.x"
+    runtime       = var.lambda_runtime
     memory_size   = var.lambda_memory_size
     tags          = var.lambda_tags
     timeout       = var.lambda_timeout
