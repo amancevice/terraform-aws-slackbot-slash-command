@@ -10,13 +10,13 @@ Add-on for [amancevice/slackbot/aws](https://github.com/amancevice/terraform-aws
 ```terraform
 module "slackbot" {
   source  = "amancevice/slackbot/aws"
-  version = "~> 18.2"
+  version = "~> 22.0"
   # …
 }
 
 module "slackbot_slash_command" {
   source  = "amancevice/slackbot-slash-command/aws"
-  version = "~> 16.0"
+  version = "~> 19.0"
 
   # Required
 
@@ -30,10 +30,7 @@ module "slackbot_slash_command" {
   slack_response = jsonencode({
     response_type = "ephemeral | in_channel | dialog | modal"
     text          = ":sparkles: This will be the response"
-
-    blocks = [
-      /* … */
-    ]
+    blocks        = [ /* … */ ]
   })
 
   # Optional
@@ -43,13 +40,9 @@ module "slackbot_slash_command" {
   lambda_memory_size          = 128
   lambda_timeout              = 3
   log_group_retention_in_days = 30
+  slack_response_type         = "direct | modal"
 
-  log_group_tags = {
-    /* … */
-  }
-
-  lambda_tags = {
-    /* … */
-  }
+  log_group_tags = { /* … */ }
+  lambda_tags    = { /* … */ }
 }
 ```
