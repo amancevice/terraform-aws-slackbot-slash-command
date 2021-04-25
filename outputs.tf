@@ -8,12 +8,12 @@ output "logs" {
   value       = aws_cloudwatch_log_group.logs
 }
 
-output "permission" {
-  description = "Lambda invocation permission"
-  value       = aws_lambda_permission.invoke
+output "rule" {
+  description = "EventBridge rule"
+  value       = aws_cloudwatch_event_rule.rule
 }
 
-output "subscription" {
-  description = "SNS subscription"
-  value       = aws_sns_topic_subscription.subscription
+output "target" {
+  description = "EventBridge rule"
+  value       = aws_cloudwatch_event_target.target
 }

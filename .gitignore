@@ -9,9 +9,8 @@
 *.tfvars
 
 # module
-**/node_modules/
 *.env
-*.iid
 *.zip
 .terraform.lock.hcl
-!package.zip
+.coverage
+coverage.xml

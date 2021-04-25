@@ -1,3 +1,22 @@
+variable "event_bus_name" {
+  description = "EventBridge bus name"
+  default     = "default"
+}
+
+variable "event_rule_description" {
+  description = "EventBridge rule description"
+  default     = "Slack slash command handler"
+}
+
+variable "event_rule_name" {
+  description = "EventBridge rule name"
+}
+
+variable "event_source" {
+  description = "EventBridge event source"
+  default     = "slack"
+}
+
 variable "lambda_description" {
   description = "Lambda function description"
   default     = null
@@ -23,7 +42,7 @@ variable "lambda_role_arn" {
 
 variable "lambda_runtime" {
   description = "Lambda runtime"
-  default     = "nodejs14.x"
+  default     = "python3.8"
 }
 
 variable "lambda_tags" {
@@ -39,7 +58,7 @@ variable "lambda_timeout" {
 
 variable "log_group_retention_in_days" {
   description = "Days to retain logs in CloudWatch"
-  default     = 30
+  default     = null
 }
 
 variable "log_group_tags" {
@@ -52,14 +71,11 @@ variable "slack_response" {
   description = "Slack response JSON"
 }
 
-variable "slack_secret_name" {
-  description = "Name of Slackbot secret in AWS SecretsManager"
+variable "slack_response_type" {
+  description = "Slack response type {modal,direct}"
+  default     = "direct"
 }
 
 variable "slack_slash_command" {
   description = "Name of slash command"
-}
-
-variable "slack_topic_arn" {
-  description = "Slackbot SNS topic"
 }
